@@ -13,6 +13,7 @@ def health():
 
 @app.route('/<boardId>/', methods=['GET'])
 def getBoard(boardId):
+    #build board view and return
     return dumps(posts.find())
 
 @app.route('/<boardId>/postMessage', methods=['POST'])
