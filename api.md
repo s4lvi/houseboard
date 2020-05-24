@@ -5,6 +5,7 @@ BoardContainer: {
     news: NewsContainer,
     pictures: PictureContainer,
     messages: MessageContainer,
+    reminders: ReminderContainer,
     todo: ToDoContainer,
     schedules: ScheduleContainer
 }
