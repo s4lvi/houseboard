@@ -1,8 +1,6 @@
 import React from 'react';
 
 const {
-  Stitch,
-  RemoteMongoClient,
   AnonymousCredential
 } = require('mongodb-stitch-browser-sdk');
 
@@ -31,12 +29,10 @@ const listStyle = {
 
 const messageStyle = {
   fontSize: '60%',
-  textAlign: 'left'
+  textAlign: 'left',
+  marginBottom: "1em"
 }
 
-const client = Stitch.initializeDefaultAppClient('houseboard-twrcx');
-
-const db = client.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas').db('houseboard');
 
 class MessageList extends React.Component {
 
@@ -47,14 +43,20 @@ class MessageList extends React.Component {
     this.state = {
       messages: []
     };
+    this.client = props.client;
+    this.db = props.db;
+    this.refresh = this.refresh.bind(this);
   }
 
   componentDidMount() {
-    client.auth.loginWithCredential(new AnonymousCredential()).then(() =>
-      db.collection('messages').find().asArray()
+    this.refresh();
+    this.refreshTimer = setInterval(this.refresh, 1000);
+  }
+
+  refresh() {
+    this.client.auth.loginWithCredential(new AnonymousCredential()).then(() =>
+      this.db.collection('messages').find().asArray()
     ).then(docs => {
-        console.log("Found docs", docs)
-        console.log("[MongoDB Stitch] Connected to Stitch")
         this.setState({
           messages: docs
         });
@@ -63,6 +65,11 @@ class MessageList extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    clearInterval(this.refreshTimer);
+  }
+
+
   render() {
     return (
     <div style={componentStyle}>
@@ -70,8 +77,7 @@ class MessageList extends React.Component {
       <hr style={hrStyle} />
       <div style={listStyle}>
         {this.state.messages.map(m => {
-          console.log(m);
-          return <div style={messageStyle}>"{m.message}" <br />- {m.author} on {m.timestamp.toString()}</div>
+          return <div style={messageStyle}>"{m.message}" <br />- {m.author} on {m.timestamp ? m.timestamp.toString() : ""}</div>
         })}
       </div>
     </div>
